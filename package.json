@@ -12,6 +12,6 @@
   },
   "dependencies": {
     "core-js": "^3.6.5",
-    "skinview3d": "^2.0.0-alpha.9"
+    "skinview3d": "^2.0.0-alpha.10"
   }
 }
