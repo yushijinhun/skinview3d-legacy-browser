@@ -4,11 +4,12 @@ const skinParts = ["head", "body", "rightArm", "leftArm", "rightLeg", "leftLeg"]
 const skinLayers = ["innerLayer", "outerLayer"];
 const availableAnimations = {
 	walk: skinview3d.WalkingAnimation,
-	run: skinview3d.RunningAnimation
+	run: skinview3d.RunningAnimation,
+	fly: skinview3d.FlyingAnimation
 };
 
 let skinViewer;
-let oribitControl;
+let orbitControl;
 let rotateAnimation;
 let primaryAnimation;
 
@@ -35,7 +36,8 @@ function reloadCape() {
 		skinViewer.loadCape(null);
 		input.setCustomValidity("");
 	} else {
-		skinViewer.loadCape(url)
+		const selectedBackEquipment = document.querySelector('input[type="radio"][name="back_equipment"]:checked');
+		skinViewer.loadCape(url, { backEquipment: selectedBackEquipment.value })
 			.then(() => input.setCustomValidity(""))
 			.catch(e => {
 				input.setCustomValidity("Image can't be loaded.");
@@ -80,9 +82,9 @@ function initializeControls() {
 			primaryAnimation.speed = e.target.value;
 		}
 	});
-	document.getElementById("control_rotate").addEventListener("change", e => oribitControl.enableRotate = e.target.checked);
-	document.getElementById("control_zoom").addEventListener("change", e => oribitControl.enableZoom = e.target.checked);
-	document.getElementById("control_pan").addEventListener("change", e => oribitControl.enablePan = e.target.checked);
+	document.getElementById("control_rotate").addEventListener("change", e => orbitControl.enableRotate = e.target.checked);
+	document.getElementById("control_zoom").addEventListener("change", e => orbitControl.enableZoom = e.target.checked);
+	document.getElementById("control_pan").addEventListener("change", e => orbitControl.enablePan = e.target.checked);
 	for (const part of skinParts) {
 		for (const layer of skinLayers) {
 			document.querySelector(`#layers_table input[type="checkbox"][data-part="${part}"][data-layer="${layer}"]`)
@@ -114,8 +116,21 @@ function initializeControls() {
 	document.getElementById("skin_url").addEventListener("change", () => reloadSkin());
 	document.getElementById("skin_model").addEventListener("change", () => reloadSkin());
 	document.getElementById("cape_url").addEventListener("change", () => reloadCape());
+
+	for (const el of document.querySelectorAll('input[type="radio"][name="back_equipment"]')) {
+		el.addEventListener("change", e => {
+			if (skinViewer.playerObject.backEquipment === null) {
+				// cape texture hasn't been loaded yet
+				// this option will be processed on texture loading
+			} else {
+				skinViewer.playerObject.backEquipment = e.target.value;
+			}
+		});
+	}
+
 	document.getElementById("reset_all").addEventListener("click", () => {
 		skinViewer.dispose();
+		orbitControl.dispose();
 		initializeViewer();
 	});
 }
@@ -126,7 +141,7 @@ function initializeViewer() {
 		alpha: false
 	});
 	skinViewer.renderer.setClearColor(0x5a76f3);
-	oribitControl = skinview3d.createOrbitControls(skinViewer);
+	orbitControl = skinview3d.createOrbitControls(skinViewer);
 	rotateAnimation = null;
 	primaryAnimation = null;
 
@@ -142,9 +157,9 @@ function initializeViewer() {
 		primaryAnimation = skinViewer.animations.add(availableAnimations[primaryAnimationName]);
 		primaryAnimation.speed = document.getElementById("primary_animation_speed").value;
 	}
-	oribitControl.enableRotate = document.getElementById("control_rotate").checked;
-	oribitControl.enableZoom = document.getElementById("control_zoom").checked;
-	oribitControl.enablePan = document.getElementById("control_pan").checked;
+	orbitControl.enableRotate = document.getElementById("control_rotate").checked;
+	orbitControl.enableZoom = document.getElementById("control_zoom").checked;
+	orbitControl.enablePan = document.getElementById("control_pan").checked;
 	for (const part of skinParts) {
 		for (const layer of skinLayers) {
 			skinViewer.playerObject.skin[part][layer].visible =
