@@ -8,7 +8,16 @@ module.exports = {
 		plugins: [ threeMinifier.resolver ],
 	},
 	output: {
-		filename: "index.js"
+		filename: "index.js",
+		environment: {
+			arrowFunction: false,
+			bigIntLiteral: false,
+			const: false,
+			destructuring: false,
+			dynamicImport: false,
+			forOf: false,
+			module: false
+		}
 	},
 	module: {
 		rules: [{
