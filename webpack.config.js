@@ -14,14 +14,7 @@ module.exports = {
 		rules: [{
 			test: /\.jsx?$/,
 			loader: "babel-loader",
-			exclude: {
-				test: path.resolve(__dirname, "node_modules"),
-				exclude: [
-					path.resolve(__dirname, "node_modules/three"),
-					path.resolve(__dirname, "node_modules/skinview-utils"),
-					path.resolve(__dirname, "node_modules/skinview3d")
-				]
-			}
+			exclude: /node_modules\/(?!(three|skinview-utils|skinview3d)\/)/
 		}]
 	},
 	devtool: "source-map",
